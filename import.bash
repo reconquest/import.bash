@@ -4,6 +4,6 @@ function import() {
     fi 2>&1
 
     local name=$1
-    local base_dir=$(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)
+    local base_dir=$(dirname "$(readlink -f "${BASH_SOURCE[1]}")")
     source "$base_dir/vendor/$name.bash/${name##*/}.bash"
 }
