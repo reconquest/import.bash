@@ -1,10 +1,10 @@
-tests:make-tmp-dir -p vendor/lib-a/vendor/lib-b
+tests:make-tmp-dir -p vendor/lib-a.bash/vendor/lib-b.bash
 
-tests:put vendor/lib-a/vendor/lib-b/lib-b.bash <<EOF
+tests:put vendor/lib-a.bash/vendor/lib-b.bash/lib-b.bash <<EOF
 echo -n 3
 EOF
 
-tests:put vendor/lib-a/lib-a.bash <<EOF
+tests:put vendor/lib-a.bash/lib-a.bash <<EOF
 import lib-b
 echo -n 2
 EOF

@@ -11,6 +11,6 @@ import "path/to/any/lib.bash"
 # Example
 
 ```bash
-import "github.com/reconquest/opts.bash"
-import "github.com/reconquest/types.bash"
+import "github.com/reconquest/opts"
+import "github.com/reconquest/types"
 ```

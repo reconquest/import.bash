@@ -1,13 +1,13 @@
-tests:make-tmp-dir -p vendor/x/lib-a.bash/lib-a
+tests:make-tmp-dir -p vendor/x/y/lib-a.bash
 
-tests:put vendor/x/lib-a.bash/lib-a.bash <<EOF
+tests:put vendor/x/y/lib-a.bash/lib-a.bash <<EOF
 echo -n 1
 EOF
 
 tests:put script.bash <<EOF
 source import.bash
 
-import x/lib-a
+import x/y/lib-a
 EOF
 
 tests:ensure source script.bash

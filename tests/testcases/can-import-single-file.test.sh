@@ -1,6 +1,6 @@
-tests:make-tmp-dir vendor/lib-a
+tests:make-tmp-dir -p vendor/lib-a.bash
 
-tests:put vendor/lib-a/lib-a.bash <<EOF
+tests:put vendor/lib-a.bash/lib-a.bash <<EOF
 echo -n 1
 EOF
 
