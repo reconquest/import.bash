@@ -14,5 +14,9 @@ function import() {
         base_dir="$git_root_dir"
     fi
 
-    source "$base_dir/vendor/$name.bash/${name##*/}.bash"
+    if ! grep -qP '\.bash$|\.sh$' <<< "$name"; then
+        name="$name.bash"
+    fi
+
+    source "$base_dir/vendor/$name/${name##*/}"
 }
