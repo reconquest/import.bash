@@ -1,3 +1,11 @@
+# @description Sources specified module from vendors dir.
+#
+# @example
+#   import "github.com/reconquest/tests.sh"
+#
+# @arg $1 string Module name to import.
+# @stdout ? Whatever sourced module outputs.
+# @exitcode ? Whatever sourced module returns.
 function import() {
     if [ $# -lt 1 ]; then
         echo first argument should be name to import
@@ -21,6 +29,14 @@ function import() {
     source "$base_dir/vendor/$name/${name##*/}"
 }
 
+# @description Sources relative script file.
+#
+# @example
+#   include options.sh
+#
+# @arg $1 string Script name to source.
+# @stdout ? Whatever sourced script outputs.
+# @exitcode ? Whatever sourced script returns.
 function include() {
     if [ $# -lt 1 ]; then
         echo first argument should be script name to include
