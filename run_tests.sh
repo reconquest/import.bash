@@ -4,6 +4,4 @@ set -euo pipefail
 
 source ${BASH_SOURCE[0]%/*}/vendor/github.com/reconquest/tests.sh/tests.sh
 
-cd tests/
-
-tests:main -d testcases -s local-setup.sh "${@:--A}"
+tests:main -d tests/testcases -s tests/local-setup.sh "${@:--A}"
