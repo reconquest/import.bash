@@ -46,7 +46,7 @@ import() {
     done < <(/bin/tr ':' '\n' <<< "$IMPORTPATH")
 
     if ! $found; then
-        if git clone \
+        if git clone --recursive --depth 1 --single-branch \
             "https://$vendor_name" "$base_vendor_dir/$vendor_name";
         then
             vendor_dir="$base_vendor_dir"

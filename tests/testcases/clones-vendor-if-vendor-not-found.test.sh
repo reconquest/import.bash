@@ -22,4 +22,4 @@ tests:not tests:ensure source script.bash
 tests:assert-stderr "can't clone lib-b.bash"
 
 expected_path="$(tests:get-tmp-dir)/vendor/lib-a.bash/vendor/lib-b.bash"
-tests:assert-re git.log "clone https://lib-b.bash $expected_path"
+tests:assert-re git.log "clone.*https://lib-b.bash $expected_path"
