@@ -60,6 +60,10 @@ import() {
     source "$vendor_dir/$vendor_name/${vendor_name##*/}"
 }
 
+import:path:get() {
+    echo "$IMPORTPATH"
+}
+
 import:path:append() {
     while [[ $# -ne 0 ]]; do
         if [[ ! -v IMPORTPATH ]]; then
