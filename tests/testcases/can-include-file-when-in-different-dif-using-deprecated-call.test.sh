@@ -3,7 +3,7 @@ echo -n 1
 EOF
 
 tests:put script.bash <<EOF
-import:include script-a.bash
+include script-a.bash
 EOF
 
 tests:make-tmp-dir some-dir

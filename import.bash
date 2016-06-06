@@ -1,19 +1,25 @@
+:import:declare() {
+
 # @description Sources specified module from vendors dir.
 #
 # @example
-#   import "github.com/reconquest/tests.sh"
+#   import:source "github.com/reconquest/tests.sh"
 #
 # @arg $1 string Module name to import.
 # @stdout ? Whatever sourced module outputs.
 # @exitcode ? Whatever sourced module returns.
-import() {
+import:source() {
+    :import:source "${@}"
+}
+
+:import:source() {
     if [ $# -lt 1 ]; then
         echo first argument should be name to import >&2
         return 1
     fi 2>&1
 
     local vendor_name="$1"
-    local base_dir=$(dirname "$(readlink -f "${BASH_SOURCE[1]}")")
+    local base_dir=$(dirname "$(readlink -f "${BASH_SOURCE[2]}")")
 
     local git_root_dir=""
     if git_root_dir=$(
@@ -58,6 +64,8 @@ import() {
     fi
 
     source "$vendor_dir/$vendor_name/${vendor_name##*/}"
+
+    :import:declare
 }
 
 import:path:get() {
@@ -89,22 +97,37 @@ import:path:prepend() {
 }
 
 
-# @description Sources relative script file.
-#
-# @example
-#   include options.sh
-#
-# @arg $1 string Script name to source.
-# @stdout ? Whatever sourced script outputs.
-# @exitcode ? Whatever sourced script returns.
-include() {
+:import:include() {
     if [ $# -lt 1 ]; then
         echo first argument should be script name to include >&2
         return 1
     fi 2>&1
 
     local name=$1
-    local base_dir=$(dirname "$(readlink -f "${BASH_SOURCE[1]}")")
+    local base_dir=$(dirname "$(readlink -f "${BASH_SOURCE[2]}")")
 
     source "$base_dir/$name"
+
+    :import:declare
 }
+
+# @description Sources relative script file.
+#
+# @example
+#   import:include options.sh
+#
+# @arg $1 string Script name to source.
+# @stdout ? Whatever sourced script outputs.
+# @exitcode ? Whatever sourced script returns.
+import:include() {
+    :import:include "${@}"
+}
+
+# back compatibility
+
+include() { :import:include "${@}"; }
+import()  { :import:source "${@}"; }
+
+} # end of :import:declare
+
+:import:declare
