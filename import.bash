@@ -128,7 +128,8 @@ import:path:prepend() {
             source=$(sed -r "s/Cloning into '(.*)'.../\\1/" <<< "$line" \
                 | cut -b$(wc -c <<< "$pwd")- \
                 | sed -r 's@vendor/@@g' \
-                | sed -r 's@\.bash@@g')
+                | sed -r 's@\.bash@@g' \
+                | sed -r 's@^/@@g' )
 
             if [ ! "$previous" ]; then
                 printf "%s\n" "$source"
