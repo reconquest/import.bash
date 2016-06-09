@@ -6,6 +6,8 @@ echo -n 2
 EOF
 
 tests:put script.bash <<EOF
+set -e
+
 source import.bash
 
 import lib-a
@@ -15,7 +17,7 @@ EOF
 git() {
     tests:eval echo "$*" '>>' $(tests:get-tmp-dir)/git.log
 
-    /bin/git "$@"
+    command git "$@"
 }
 
 tests:not tests:ensure source script.bash

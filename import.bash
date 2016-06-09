@@ -49,13 +49,13 @@ import:source() {
             found=true
             break
         fi
-    done < <(/bin/tr ':' '\n' <<< "$IMPORTPATH")
+    done < <(command tr ':' '\n' <<< "$IMPORTPATH")
 
     if ! $found; then
         if clone_output=$(git clone \
             --progress --recursive --depth 1 --single-branch \
             "https://$vendor_name" "$base_vendor_dir/$vendor_name" 2>&1 \
-                | :import:beautify-clone-output);
+                | :import:beautify-clone-output ; exit ${PIPESTATUS[0]});
         then
             vendor_dir="$base_vendor_dir"
             found=true
