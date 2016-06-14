@@ -74,10 +74,21 @@ import:source() {
     :import:declare
 }
 
+# @description Returns used IMPORTPATH.
+#
+# IMPORTPATH is used for looking for vendors while importing.
+#
+# @stdout Paths, separated by colon (:).
+# @noargs
 import:path:get() {
     echo "$IMPORTPATH"
 }
 
+# @description Appends given argument to the IMPORTPATH.
+#
+# All further imports will look for vendors in the specified directories.
+#
+# @arg $1 string Path to append.
 import:path:append() {
     while [[ $# -ne 0 ]]; do
         if [[ ! -v IMPORTPATH ]]; then
@@ -90,6 +101,12 @@ import:path:append() {
     done
 }
 
+
+# @description Prepends given argument to the IMPORTPATH.
+#
+# All further imports will look for vendors in the specified directories.
+#
+# @arg $1 string Path to prepend.
 import:path:prepend() {
     while [[ $# -ne 0 ]]; do
         if [[ ! -v IMPORTPATH ]]; then
