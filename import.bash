@@ -33,6 +33,9 @@ import:source() {
         vendor_name="$vendor_name.bash"
     fi
 
+    local _basic_vendor=$(dirname "$(readlink -f ${BASH_SOURCE[1]})")
+    _basic_vendor=$(dirname "$(dirname "$(dirname "$_basic_vendor")")")
+
     local base_vendor_dir="$base_dir/vendor"
     if [[ "$git_root_dir" ]]; then
         if [[ -d "$git_root_dir/vendor" && ! -d "$base_dir/vendor" ]]; then
@@ -45,7 +48,7 @@ import:source() {
     local found=false
     local vendor_dir=""
     while read -r vendor_dir; do
-        if [[ -d "$vendor_dir/$vendor_name" ]]; then
+        if [[ -f "$vendor_dir/$vendor_name/$(basename $vendor_name)" ]]; then
             found=true
             break
         fi
@@ -53,11 +56,11 @@ import:source() {
 
     if ! $found; then
         if clone_output=$(git clone \
-            --progress --recursive --depth 1 --single-branch \
-            "https://$vendor_name" "$base_vendor_dir/$vendor_name" 2>&1 \
+            --local --progress --depth 1 --single-branch \
+            "https://$vendor_name" "$_basic_vendor/$vendor_name" 2>&1 \
                 | :import:beautify-clone-output ; exit ${PIPESTATUS[0]});
         then
-            vendor_dir="$base_vendor_dir"
+            vendor_dir="$_basic_vendor"
             found=true
         else
             echo "can't clone $vendor_name" >&2
