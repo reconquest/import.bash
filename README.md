@@ -40,7 +40,7 @@ echo "args: ${args[@]}"
 
 See reference at [REFERENCE.md](REFERENCE.md).
 
-# Some libs
+# Various libs
 
 * [types.bash](https://github.com/reconquest/types.bash) &mdash; type check functions;
 * [opts.bash](https://github.com/reconquest/opts.bash) &mdash; easy to use arguments parser;
