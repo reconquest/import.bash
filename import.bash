@@ -56,7 +56,7 @@ import:source() {
 
     if ! $found; then
         if clone_output=$(git clone \
-            --local --progress --depth 1 --single-branch \
+            --local --progress --single-branch \
             "https://$vendor_name" "$_basic_vendor/$vendor_name" 2>&1 \
                 | :import:beautify-clone-output ; exit ${PIPESTATUS[0]});
         then
