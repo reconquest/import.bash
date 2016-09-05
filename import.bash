@@ -55,11 +55,13 @@ import:source() {
     done < <(command tr ':' '\n' <<< "$IMPORTPATH")
 
     if ! $found; then
-        if clone_output=$(git clone \
-            --local --progress --single-branch \
-            "https://$vendor_name" "$_basic_vendor/$vendor_name" 2>&1 \
-                | :import:beautify-clone-output ; exit ${PIPESTATUS[0]});
-        then
+        if clone_output=$(
+            git clone \
+                --local --progress --single-branch \
+                "https://$vendor_name" "$_basic_vendor/$vendor_name" 2>&1 \
+                    | :import:beautify-clone-output "$git_root_dir"
+            exit ${PIPESTATUS[0]}
+        ); then
             vendor_dir="$_basic_vendor"
             found=true
         else
@@ -137,7 +139,7 @@ import:path:prepend() {
 :import:beautify-clone-output() {
     local previous=""
     local source=""
-    local pwd="$(pwd)"
+    local pwd="$1"
 
     while read line; do
         printf "%s\n" "$line" >&3
