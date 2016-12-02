@@ -1,175 +1,3 @@
-:import:declare() {
-
-# @description Sources specified module from vendors dir.
-#
-# @example
-#   import:source "github.com/reconquest/tests.sh"
-#
-# @arg $1 string Module name to import.
-# @stdout ? Whatever sourced module outputs.
-# @exitcode ? Whatever sourced module returns.
-import:source() {
-    :import:source "${@}"
-}
-
-:import:source() {
-    if [ $# -lt 1 ]; then
-        echo first argument should be name to import >&2
-        return 1
-    fi 2>&1
-
-    local vendor_name="$1"
-    local base_dir=$(dirname "$(readlink -f "${BASH_SOURCE[2]}")")
-
-    local git_root_dir=""
-    if git_root_dir=$(
-        builtin cd "$base_dir" \
-            && git rev-parse --show-toplevel 2>/dev/null
-    ); then
-        :
-    fi
-
-    if ! grep -qP '\.bash$|\.sh$' <<< "$vendor_name"; then
-        vendor_name="$vendor_name.bash"
-    fi
-
-    local _basic_vendor=$(dirname "$(readlink -f ${BASH_SOURCE[1]})")
-    _basic_vendor=$(dirname "$(dirname "$(dirname "$_basic_vendor")")")
-
-    local base_vendor_dir="$base_dir/vendor"
-    if [[ "$git_root_dir" ]]; then
-        if [[ -d "$git_root_dir/vendor" && ! -d "$base_dir/vendor" ]]; then
-            base_vendor_dir="$git_root_dir/vendor"
-        fi
-    fi
-
-    import:path:prepend "$base_vendor_dir"
-
-    local found=false
-    local vendor_dir=""
-    while read -r vendor_dir; do
-        if [[ -f "$vendor_dir/$vendor_name/$(basename $vendor_name)" ]]; then
-            found=true
-            break
-        fi
-    done < <(command tr ':' '\n' <<< "$IMPORTPATH")
-
-    if ! $found; then
-        if clone_output=$(
-            git clone \
-                --local --progress --single-branch \
-                "https://$vendor_name" "$_basic_vendor/$vendor_name" 2>&1 \
-                    | :import:beautify-clone-output "$git_root_dir"
-            exit ${PIPESTATUS[0]}
-        ); then
-            vendor_dir="$_basic_vendor"
-            found=true
-        else
-            echo "can't clone $vendor_name" >&2
-            echo "$clone_output" >&2
-            return 1
-        fi
-    fi
-
-    source "$vendor_dir/$vendor_name/${vendor_name##*/}"
-
-    :import:declare
-}
-
-# @description Returns used IMPORTPATH.
-#
-# IMPORTPATH is used for looking for vendors while importing.
-#
-# @stdout Paths, separated by colon (:).
-# @noargs
-import:path:get() {
-    echo "$IMPORTPATH"
-}
-
-# @description Appends given argument to the IMPORTPATH.
-#
-# All further imports will look for vendors in the specified directories.
-#
-# @arg $1 string Path to append.
-import:path:append() {
-    while [[ $# -ne 0 ]]; do
-        if [[ ! -v IMPORTPATH ]]; then
-            IMPORTPATH="$1"
-        else
-            IMPORTPATH="${IMPORTPATH}:$1"
-        fi
-
-        shift
-    done
-}
-
-
-# @description Prepends given argument to the IMPORTPATH.
-#
-# All further imports will look for vendors in the specified directories.
-#
-# @arg $1 string Path to prepend.
-import:path:prepend() {
-    while [[ $# -ne 0 ]]; do
-        if [[ ! -v IMPORTPATH ]]; then
-            IMPORTPATH="$1"
-        else
-            IMPORTPATH="$1:${IMPORTPATH}"
-        fi
-
-        shift
-    done
-}
-
-
-:import:include() {
-    if [ $# -lt 1 ]; then
-        echo first argument should be script name to include >&2
-        return 1
-    fi 2>&1
-
-    local name=$1
-    local base_dir=$(dirname "$(readlink -f "${BASH_SOURCE[2]}")")
-
-    source "$base_dir/$name"
-
-    :import:declare
-}
-
-:import:beautify-clone-output() {
-    local previous=""
-    local source=""
-    local pwd="$1"
-
-    while read line; do
-        printf "%s\n" "$line" >&3
-
-        if grep -Pq "^Cloning into" <<< "$line"; then
-            previous="$source"
-
-            source=$(sed -r "s/Cloning into '(.*)'.../\\1/" <<< "$line" \
-                | cut -b$(wc -c <<< "$pwd")- \
-                | sed -r 's@vendor/@@g' \
-                | sed -r 's@\.bash@@g' \
-                | sed -r 's@^/@@g' )
-
-            if [ ! "$previous" ]; then
-                printf "%s\n" "$source"
-                continue
-            fi
-
-            if [ "$(grep -bF "$previous" <<< "$source" | cut -f1 -d:)" = "0" ]
-            then
-                submodule=$(cut -b$(wc -c <<< "$previous/")- <<< "$source")
-
-                printf "%s\n" "submodule: $submodule"
-            else
-                printf "%s\n" "$source"
-            fi
-        fi
-    done 3>&1 1>&2
-}
-
 # @description Sources relative script file.
 #
 # @example
@@ -179,14 +7,150 @@ import:path:prepend() {
 # @stdout ? Whatever sourced script outputs.
 # @exitcode ? Whatever sourced script returns.
 import:include() {
-    :import:include "${@}"
+    if [ $# -lt 1 ]; then
+        echo first argument should be script name to include >&2
+        return 1
+    fi 2>&1
+
+    local name=$1
+    local sourcer_dir=$(dirname "$(readlink -f "${BASH_SOURCE[1]}")")
+
+    source "$sourcer_dir/$name"
 }
 
-# back compatibility
+# @description Sources specified module from vendors dir.
+#
+# @example
+#   import:use "github.com/reconquest/tests.sh"
+#
+# @arg $1 string Module name to import.
+# @stdout ? Whatever sourced module outputs.
+# @exitcode ? Whatever sourced module returns.
+import:use() {
+    if [ $# -lt 1 ]; then
+        echo first argument should be name to import >&2
+        return 1
+    fi 2>&1
 
-include() { :import:include "${@}"; }
-import()  { :import:source "${@}"; }
+    local vendor_name="$1"
 
-} # end of :import:declare
+    local extension=${vendor_name##*.}
 
-:import:declare
+    if [[ "$extension" != "bash" && "$extension" != "sh" ]]; then
+        vendor_name="$vendor_name.bash"
+    fi
+
+    local sourcer_dir=$(dirname "$(readlink -f "${BASH_SOURCE[1]}")")
+    local local_git_dir=$(:import:git:print-top-level-dir)
+    local project_git_dir=$(:import:git:print-project-dir "$sourcer_dir")
+    local vendor_dir
+    local base_dir
+
+    for base_dir in "${local_git_dir:-$sourcer_dir}" "$project_git_dir"; do
+        vendor_dir=$base_dir/vendor/$vendor_name
+
+        if [[ -f "$vendor_dir/${vendor_name##*/}" ]]; then
+            :import:source "$vendor_dir/${vendor_name##*/}"
+
+            return $?
+        fi
+    done
+
+    if clone_output=$(
+        :import:clone "$vendor_name" "$vendor_dir" "$base_dir"
+    ); then
+        :import:source "$vendor_dir/${vendor_name##*/}"
+
+        return $?
+    else
+        printf "can't clone '%s'\n%s\n" "$vendor_name" "$clone_output" >&2
+
+        return 1
+    fi
+}
+
+:import:source() {
+    local file=$1
+
+    source "$file"
+    local exit_code=$?
+
+    # restore original import.bash
+    source "${BASH_SOURCE[0]}"
+
+    return "$exit_code"
+}
+
+:import:clone() {
+    local vendor_name=$1
+    local vendor_dir=$2
+    local base_dir=$3
+
+    git clone \
+        --local --progress --single-branch \
+        "https://$vendor_name" "$vendor_dir" 2>&1 \
+            | :import:print-progress "$base_dir"
+}
+
+:import:print-progress() {
+    local base_dir="$1"
+
+    local previous=""
+    local path=""
+
+    while read line; do
+        printf "%s\n" "$line" >&3
+
+        if grep -q "^Cloning into" <<< "$line"; then
+            previous="$path"
+
+            path=$(
+                grep -o "'.*'" <<< "$line" \
+                    | tr -d "'"
+            )
+
+            path=${path#$base_dir}
+
+            path=$(
+                sed -r <<< "$path" \
+                    -e 's:vendor/::g' \
+                    -e 's:\.bash::g' \
+                    -e 's:^/::g'
+            )
+
+            if [[ "$previous" && "${path#$previous/}" != "$path" ]]; then
+                printf "%s\n" "submodule: ${path#$previous/}"
+            else
+                printf "%s\n" "$path"
+            fi
+        fi
+    done 3>&1 1>&2
+}
+
+:import:git:print-top-level-dir() {
+    git rev-parse --show-toplevel 2>/dev/null
+}
+
+:import:git:print-project-dir() {
+    local dir=$1
+
+    cd "$dir"
+
+    {
+        printf '%s\n' "$dir"
+
+        while dir=$(:import:git:print-top-level-dir); do
+            if [[ ! "$dir" ]]; then
+                return
+            fi
+
+            printf '%s\n' "$dir"
+
+            cd "$dir/.."
+        done
+    } | tail -n1
+}
+
+import:source() {
+    import:use "$@"
+}

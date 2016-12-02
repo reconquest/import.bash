@@ -9,14 +9,14 @@ echo -n 4
 EOF
 
 tests:put vendor/lib-a.bash/lib-a.bash <<EOF
-import lib-b
+import:use lib-b
 echo -n 2
 EOF
 
 tests:put script.bash <<EOF
 source import.bash
 
-import lib-a
+import:use lib-a
 echo -n 1
 EOF
 

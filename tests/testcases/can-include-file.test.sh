@@ -3,7 +3,7 @@ echo -n 1
 EOF
 
 tests:put script.bash <<EOF
-include script-a.bash
+import:include script-a.bash
 EOF
 
 tests:ensure source script.bash

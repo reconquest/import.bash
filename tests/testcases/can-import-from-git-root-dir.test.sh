@@ -10,7 +10,7 @@ EOF
 tests:put blah/script.bash <<EOF
 source import.bash
 
-import x/lib-a
+import:use x/lib-a
 EOF
 
 tests:eval git add script.bash

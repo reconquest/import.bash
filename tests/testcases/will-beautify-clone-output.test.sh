@@ -1,7 +1,7 @@
 tests:put script.bash <<EOF
 source import.bash
 
-import whatever.bash
+import:use whatever.bash
 EOF
 
 git() {

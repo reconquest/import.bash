@@ -7,7 +7,7 @@ EOF
 tests:put script.bash <<EOF
 source import.bash
 
-import x/lib-a
+import:use x/lib-a
 EOF
 
 tests:ensure source script.bash

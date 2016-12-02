@@ -1,7 +1,9 @@
 tests:make-tmp-dir -p vendor/lib-a.bash
 
 tests:put vendor/lib-a.bash/lib-a.bash <<EOF
-import lib-b
+set -e
+
+import:use lib-b
 echo -n 2
 EOF
 
@@ -10,7 +12,7 @@ set -e
 
 source import.bash
 
-import lib-a
+import:use lib-a
 echo -n 1
 EOF
 
@@ -21,7 +23,7 @@ git() {
 }
 
 tests:not tests:ensure source script.bash
-tests:assert-stderr "can't clone lib-b.bash"
+tests:assert-stderr "can't clone 'lib-b.bash'"
 
 expected_path="$(tests:get-tmp-dir)/vendor/lib-a.bash/vendor/lib-b.bash"
 tests:assert-re git.log "clone.*https://lib-b.bash $expected_path"
