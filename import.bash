@@ -71,12 +71,13 @@ import:use() {
 
 :import:source() {
     local file=$1
+    local source=$(readlink -f "${BASH_SOURCE[0]}")
 
     source "$file"
     local exit_code=$?
 
     # restore original import.bash
-    source "${BASH_SOURCE[0]}"
+    source "$source"
 
     return "$exit_code"
 }
