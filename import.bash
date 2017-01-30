@@ -34,12 +34,6 @@ import:use() {
 
     local vendor_name="$1"
 
-    local extension=${vendor_name##*.}
-
-    if [[ "$extension" != "bash" && "$extension" != "sh" ]]; then
-        vendor_name="$vendor_name.bash"
-    fi
-
     local sourcer_dir=$(dirname "$(readlink -f "${BASH_SOURCE[1]}")")
     local local_git_dir=$(:import:git:print-top-level-dir)
     local project_git_dir=$(:import:git:print-project-dir "$sourcer_dir")
