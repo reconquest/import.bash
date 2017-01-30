@@ -109,7 +109,6 @@ import:use() {
             path=$(
                 sed -r <<< "$path" \
                     -e 's:vendor/::g' \
-                    -e 's:\.bash::g' \
                     -e 's:^/::g'
             )
 
