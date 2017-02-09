@@ -9,7 +9,7 @@ bash import directive, like in Golang.
 ```bash
 source "vendor/github.com/reconquest/import.bash/import.bash"
 
-import:source "path/to/any/lib.bash"
+import:use "path/to/any/lib.bash"
 ```
 # How does it work?
 
@@ -23,7 +23,7 @@ Then, file named same as last part of the import name will be sourced.
 ```bash
 source "vendor/github.com/reconquest/import.bash/import.bash"
 
-import:source "github.com/reconquest/opts.bash"
+import:use "github.com/reconquest/opts.bash"
 
 declare -a args
 declare -A opts
