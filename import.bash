@@ -132,6 +132,19 @@ import:use() {
     } | tail -n1
 }
 
+:import:source() {
+    local file=$1
+    local source=$(readlink -f "${BASH_SOURCE[0]}")
+
+    source "$file"
+    local exit_code=$?
+
+    # restore original import.bash
+    source "$source"
+
+    return "$exit_code"
+}
+
 import:source() {
     echo "import:source is deprecated, use import:use instead" >&2
     exit 1
