@@ -63,19 +63,6 @@ import:use() {
     fi
 }
 
-:import:source() {
-    local file=$1
-    local source=$(readlink -f "${BASH_SOURCE[0]}")
-
-    source "$file"
-    local exit_code=$?
-
-    # restore original import.bash
-    source "$source"
-
-    return "$exit_code"
-}
-
 :import:clone() {
     local vendor_name=$1
     local vendor_dir=$2
@@ -146,5 +133,6 @@ import:use() {
 }
 
 import:source() {
-    import:use "$@"
+    echo "import:source is deprecated, use import:use instead" >&2
+    exit 1
 }
