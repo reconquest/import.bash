@@ -41,7 +41,7 @@ import:use() {
     local base_dir
 
     for base_dir in "${local_git_dir:-$sourcer_dir}" "$project_git_dir"; do
-        vendor_dir=$base_dir/vendor/$vendor_name
+        vendor_dir=$base_dir/vendor.bash/$vendor_name
 
         if [[ -f "$vendor_dir/${vendor_name##*/}" ]]; then
             :import:source "$vendor_dir/${vendor_name##*/}"
@@ -95,7 +95,7 @@ import:use() {
 
             path=$(
                 sed -r <<< "$path" \
-                    -e 's:vendor/::g' \
+                    -e 's:vendor.bash/::g' \
                     -e 's:^/::g'
             )
 
